@@ -1,0 +1,29 @@
+{
+  "name": "multicfg",
+  "version": "0.0.1",
+  "description": "A little configuration helper library",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/bjjb/multicfg.git"
+  },
+  "keywords": [
+    "configuration",
+    "config"
+  ],
+  "author": "bjjb",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bjjb/multicfg/issues"
+  },
+  "homepage": "https://github.com/bjjb/multicfg#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "coffee-script": "^1.10.0",
+    "mocha": "^2.5.3",
+    "pug": "^2.0.0-beta3"
+  }
+}
