@@ -88,16 +88,22 @@ describe 'multicfg.file', ->
       expect(cfg.get('a')).to.eq('b')
       done()
 
-describe 'multicfg.multi', ->
-  store1 = { a: 123, c: 999 }
-  store2 = { a: 234, b: 888 }
-  cfg = multicfg.multi([store1, store2])
+describe 'multicfg', ->
+  s1 = { a: 123, c: 999 }
+  s2 = (k) -> 888 if k is 'b'
+  s3 = '{"d": 777}'
+  s4 = multicfg.env({MY_E: 555}, 'MY')
+  cfg = multicfg(s1, s2, s3, s4)
   it 'responds to get with a default', ->
     expect(cfg.get('NOTHING', 'y')).to.eq('y')
   it 'acts like a promise', ->
     expect(cfg.then).to.be.a 'function'
   it 'resolves to the store', (done) ->
     cfg.then (cfg) ->
-      expect(cfg.get('a')).to.eq('b')
+      expect(cfg.get('a')).to.eq(123)
+      expect(cfg.get('b')).to.eq(888)
+      expect(cfg.get('c')).to.eq(999)
+      expect(cfg.get('d')).to.eq(777)
+      expect(cfg.get('e')).to.eq(555)
       done()
-
+    .catch(done)

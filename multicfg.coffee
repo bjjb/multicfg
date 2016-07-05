@@ -17,11 +17,7 @@
 #
 # To use `file` or `http`, you should use `multicfg` asynchronously, by
 # treating the result of the function as a promise.
-#
-# If the first argument isn't null (and is configurable), it will be used as
-# storage when you call `getItem` and `deleteItem`.
-multicfg = (stores...) ->
-  multicfg.multi(stores)
+cfg = (stores...) -> multi(stores)
 
 # Promises to get a value, but the promise itself responds to `get`, so it can
 # be used as-is if you're sure all the stores are synchronous. `prerequisite`
@@ -39,46 +35,51 @@ readFile = (path, encoding) ->
       return reject(err) if err?
       resolve(data)
     
-multicfg.dict = (store = {}) ->
+dict = (store = {}) ->
   get = (k, v) -> store[k] || v
   promise(get)
 
-multicfg.func = (func) ->
-  get = (k, f) -> func(k, v) || v
+func = (func) ->
+  get = (k, v) -> func(k, v) || v
   promise(get)
 
-multicfg.env = (env, prefix) ->
+env = (env, prefix) ->
   get = (k, v) ->
     k = k.toString().replace('.', '_').toUpperCase()
     k = "#{prefix}_#{k}" if prefix?
     env[k] || v
   promise(get)
 
-multicfg.json = (str) ->
-  json = JSON.parse(str)
-  get = (k, v) -> json[k.toString()] || v
+json = (str) ->
+  j = JSON.parse(str)
+  get = (k, v) -> j[k.toString()] || v
   promise(get)
 
-multicfg.file = (path, encoding = 'utf8') ->
-  json = {}
-  get = (k, v) -> json[k] || v
+file = (path, encoding = 'utf8') ->
+  j = {}
+  get = (k, v) -> j[k] || v
   load = readFile(path, encoding).then (data) ->
-    json = JSON.parse(data)
+    j = JSON.parse(data)
   promise(get, load)
 
-multicfg.storage = (storage) ->
+storage = (storage) ->
   get = (k, v) -> storage.getItem(k) || v
   promise(get)
 
-multicfg.multi = (stores = [{}]) ->
+multi = (stores) ->
   stores = stores.map (store) ->
-    return multicfg.func(store) if typeof(store) is 'function'
-    return multicfg.dict(store) unless typeof(store.get) is 'function'
+    return json(store) if typeof(store) is 'string'
+    return func(store) if typeof(store) is 'function'
+    return dict(store) unless typeof(store.get) is 'function'
     store
-  store = (k) -> stores.find (store) -> store.get(k) isnt undefined
-  get = (k, v) -> store[k] || v
-  result = Promise.all(stores).then(-> { get })
-  result.get = get
-  result
+  store = (k) -> stores.find((store) -> store.get(k))
+  get = (k, v) -> store(k)?.get(k) || v
+  promise(get, Promise.all(stores))
 
-@multicfg = multicfg
+cfg.dict = dict
+cfg.func = func
+cfg.json = json
+cfg.file = file
+cfg.env = env
+cfg.storage = storage
+@multicfg = cfg

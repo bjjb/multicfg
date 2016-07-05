@@ -26,5 +26,7 @@
     "coffee-script": "^1.10.0",
     "mocha": "^2.5.3",
     "pug": "^2.0.0-beta3"
+  },
+  "dependencies": {
   }
 }
