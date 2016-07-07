@@ -13,6 +13,10 @@ describe 'multicfg.dict', ->
     cfg.then (cfg) ->
       expect(cfg.get('a')).to.eq('A')
       done()
+  it 'does not require an argument', ->
+    cfg = multicfg.dict()
+    expect(cfg.get('x')).to.eq(undefined)
+    expect(cfg.get('x', 'bar')).to.eq('bar')
 
 describe 'multicfg.storage', ->
   storage = getItem: (x) -> "~~#{x}~~" unless x is 'NOTHING'
@@ -87,6 +91,10 @@ describe 'multicfg.file', ->
     cfg.then (cfg) ->
       expect(cfg.get('a')).to.eq('b')
       done()
+  it 'ignores missing files', ->
+    cfg = multicfg.file('/no/such/path')
+    expect(cfg.get('a')).to.eq(undefined)
+    expect(cfg.get('a', 'A')).to.eq('A')
 
 describe 'multicfg', ->
   s1 = { a: 123, c: 999 }

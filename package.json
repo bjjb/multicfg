@@ -4,8 +4,24 @@
   "description": "A little configuration helper library",
   "main": "index.js",
   "scripts": {
+    "pretest": "npm run build",
     "test": "node_modules/.bin/mocha",
-    "build": "node_modules/.bin/coffee -c *.coffee"
+    "posttest": " npm run coverage",
+    "prepublish": "npm run test",
+    "coverage": "node_modules/.bin/mocha -r blanket -R html-cov > coverage.html",
+    "build": "node_modules/.bin/coffee -c *.coffee test/*.coffee",
+    "clean": "git clean -xf"
+  },
+  "config": {
+    "blanket": {
+      "pattern": [
+        "."
+      ],
+      "data-cover-never": [
+        "node_modules",
+        "test"
+      ]
+    }
   },
   "repository": {
     "type": "git",
@@ -15,18 +31,20 @@
     "configuration",
     "config"
   ],
-  "author": "bjjb",
+  "author": "JJ Buckley <jj@bjjb.org> (http://bjjb.org)",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/bjjb/multicfg/issues"
+    "url": "https://github.com/bjjb/multicfg/issues",
+    "email": "multicfg@bjjb.org"
   },
-  "homepage": "https://github.com/bjjb/multicfg#readme",
+  "homepage": "https://bjjb.github.io/multicfg",
   "devDependencies": {
+    "blanket": "^1.2.3",
     "chai": "^3.5.0",
     "coffee-script": "^1.10.0",
+    "jstransformer-markdown-it": "^0.2.3",
     "mocha": "^2.5.3",
     "pug": "^2.0.0-beta3"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }
