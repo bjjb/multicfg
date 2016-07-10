@@ -58,8 +58,11 @@ json = (str) ->
 file = (path, encoding = 'utf8') ->
   j = {}
   get = (k, v) -> j[k] || v
-  load = readFile(path, encoding).then (data) ->
-    j = JSON.parse(data)
+  parse = (data) -> j = JSON.parse(data)
+  rescue = (err) ->
+    console.warn(err)
+    j = {}
+  load = readFile(path, encoding).then(parse).catch(rescue)
   promise(get, load)
 
 storage = (storage) ->

@@ -77,11 +77,14 @@ describe 'multicfg.env', ->
 
 describe 'multicfg.file', ->
   { writeFile, unlink } = require 'fs'
-  cfg = null
+  cfg = _warn = null
   before (done) ->
     writeFile('x.json', '{"a": "b"}', done)
     cfg = multicfg.file('x.json')
+    _warn = console.warn
+    console.warn = ->
   after  (done) ->
+    console.warn = _warn
     unlink('x.json', done)
   it 'responds to get with a default', ->
     expect(cfg.get('NOTHING', 'y')).to.eq('y')
@@ -95,6 +98,11 @@ describe 'multicfg.file', ->
     cfg = multicfg.file('/no/such/path')
     expect(cfg.get('a')).to.eq(undefined)
     expect(cfg.get('a', 'A')).to.eq('A')
+  it 'does not blow up on missing files', (done) ->
+    multicfg.file('/no/such/thing').then (cfg) ->
+      expect(cfg.get('a', 'A')).to.eq('A')
+      done()
+    .catch(done)
 
 describe 'multicfg', ->
   s1 = { a: 123, c: 999 }
