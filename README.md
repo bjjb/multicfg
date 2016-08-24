@@ -3,9 +3,9 @@
 A little helper library for Ruby programs that need to load configuration from
 multiple sources.
 
-You pass it a list of file names and keywords, and it will result in a Hash
-which consists of options loaded from all those places. It can also load
-environment variables and getopt\_long options.
+You pass it a list of file names or IOs or hashes, and it returns a Hash-like
+object which consists of options loaded from all those places. It can also
+optionally filter the supplied hashes by some prefix, and it will deep-merge.
 
 ## Installation
 
@@ -28,22 +28,18 @@ Or install it yourself as:
 Here's how I use it all the time:
 
 ```ruby
-cfg = Mulficfg.yaml('/etc/my-program.conf', '/usr/local/etc/my-program.conf',
-                    '~/.my-program/config.yml', './.my-program.yml', :env)
+options = cli.parse(ARGV) # assuming there's a cli which return options
+cfg = Mulficfg.new
+cfg.load('/etc/my-program.conf', '/usr/local/etc/my-program.conf',
+         '~/.my-program/config.yml', './.my-program.yml', ENV, options)
 ```
-
-...so frequently, in fact, that the shortcut `Multicfg.load('my-program')`
-does exactly that.
 
 That'll load hashes from those places (provided the files exist), merge them
 (in order, so later entries supercede earlier ones), and override them with
-environment variables (in this case orefixed with `MY_PROGRAM_`). The returned
-Hash-like object has `#deep_merge` and `#deep_merge!` methods which do what
-you would expect.
+environment variables (in this case orefixed with `MY_PROGRAM_`).
 
-The example above loads YAML - there are corresponding `json` and `env`
-methods which load JSON files and files consisting of lines of `KEY=value`
-entries (for which the key is downcased/underscored in the resultant hash).
+It tries to load YAML and JSON, and env files which consist of lines with
+"KEY=value", such as `.env` files.
 
 ## Development
 
